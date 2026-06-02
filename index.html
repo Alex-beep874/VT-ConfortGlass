@@ -422,6 +422,7 @@ async function runExport(){
 
   const chantier=document.getElementById('f-chantier').value.trim()||'Chantier';
   const date=document.getElementById('f-date').value||new Date().toISOString().slice(0,10);
+  const dateFormatted=date ? date.split('-').reverse().join('/') : new Date().toLocaleDateString('fr-FR');
   const suivi=document.getElementById('f-suivi').value.trim()||'';
   const client=document.getElementById('f-client').value.trim()||'';
   const contact=document.getElementById('f-contact').value.trim()||'';
@@ -492,7 +493,7 @@ async function runExport(){
       doc.setFontSize(7.5);doc.setFont('helvetica','bold');
       doc.text('DATE DE VISITE',W-mr,8,{align:'right'});
       doc.setFontSize(9);doc.setFont('helvetica','normal');
-      doc.text(date||new Date().toLocaleDateString('fr-FR'),W-mr,13,{align:'right'});
+      doc.text(dateFormatted,W-mr,13,{align:'right'});
       doc.setFontSize(7.5);doc.setFont('helvetica','bold');
       doc.text('SUIVI PAR',W-mr,17,{align:'right'});
       doc.setFontSize(9);doc.setFont('helvetica','normal');
@@ -502,8 +503,8 @@ async function runExport(){
 
     // Info block
     const infoLines=[
-      incFields.chantier&&['Chantier',chantier ? 'Chantier : '+chantier : ''],
-      incFields.date&&['Date visite',date],
+      incFields.chantier&&['Chantier',chantier],
+      incFields.date&&['Date visite',dateFormatted],
       incFields.suivi&&['Suivi par',suivi],
       incFields.client&&['Client',client],
       incFields.contact&&['Contact',contact],
