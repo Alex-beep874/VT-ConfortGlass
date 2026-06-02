@@ -509,16 +509,20 @@ async function runExport(){
       incFields.contact&&['Contact',contact],
       incFields.adresse&&['Adresse',adresse],
       incFields.bat&&['Bâtiment',bat],
-    ].filter(Boolean).filter(l=>l[1]);
+    ].filter(Boolean);
 
     if(infoLines.length){
       doc.setTextColor(...headerColor);doc.setFontSize(9);doc.setFont('helvetica','bold');
       doc.text('INFORMATIONS CHANTIER',ml,y);y+=3.5;
       doc.setDrawColor(...headerColor);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=4;
-      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(9);
+      doc.setTextColor(30,30,30);doc.setFontSize(9);
       infoLines.forEach(([k,v])=>{
         doc.setFont('helvetica','bold');doc.text(k+' :',ml,y);
-        doc.setFont('helvetica','normal');doc.text(v,ml+30,y);
+        if(v){
+          doc.setFont('helvetica','normal');doc.setTextColor(30,30,30);doc.text(v,ml+30,y);
+        }else{
+          doc.setFont('helvetica','italic');doc.setTextColor(150,150,150);doc.text('S/O',ml+30,y);doc.setTextColor(30,30,30);
+        }
         y+=5;
       });
       y+=4;
