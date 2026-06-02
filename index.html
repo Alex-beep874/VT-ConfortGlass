@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CG VT">
+<meta name="theme-color" content="#185FA5">
+<title>Confort Glass — Fiche VT</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<style>
+:root{
+  --blue:#185FA5;--blue-light:#E6F1FB;--blue-mid:#378ADD;--blue-dark:#0C447C;--blue-border:#B5D4F4;
+  --gray-bg:#F7F7F5;--gray-border:rgba(0,0,0,0.13);--gray-text:#5F5E5A;
+  --text:#1a1a1a;--white:#fff;--radius:10px;--radius-sm:6px;--red:#E24B4A;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--gray-bg);color:var(--text);font-size:15px;line-height:1.5}
+
+.app-header{background:var(--blue);padding:14px 16px 12px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.app-header .logo{width:34px;height:34px;background:rgba(255,255,255,0.2);border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.app-header h1{color:white;font-size:16px;font-weight:600;line-height:1.2}
+.app-header p{color:rgba(255,255,255,0.75);font-size:12px}
+
+.content{padding:14px 14px 120px}
+
+.section{background:white;border-radius:var(--radius);border:1px solid var(--gray-border);padding:14px;margin-bottom:12px}
+.section-title{font-size:11px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.07em;margin-bottom:12px;display:flex;align-items:center;gap:6px}
+
+.field{margin-bottom:10px}
+.field:last-child{margin-bottom:0}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--gray-text);margin-bottom:4px}
+.field label .req{color:var(--red)}
+.field input,.field textarea{width:100%;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:10px 12px;font-size:14px;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none;transition:border .15s}
+.field input:focus,.field textarea:focus{border-color:var(--blue-mid);background:white}
+.field textarea{resize:vertical;min-height:90px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px}
+table.vt{width:100%;border-collapse:collapse;min-width:620px}
+table.vt th{background:var(--blue-light);color:var(--blue-dark);font-size:11px;font-weight:600;padding:8px 7px;border:1px solid var(--blue-border);text-align:left;white-space:nowrap}
+table.vt td{border:1px solid var(--gray-border);padding:3px;vertical-align:middle}
+table.vt td input{width:100%;background:transparent;border:none;padding:6px 5px;font-size:13px;color:var(--text);font-family:inherit;outline:none}
+table.vt td input:focus{background:var(--blue-light);border-radius:3px}
+.col-rep{width:68px}.col-dim{width:76px}.col-txt{width:120px}.col-photo{width:155px}.col-del{width:34px}
+
+.photo-cell{display:flex;flex-wrap:wrap;gap:4px;padding:4px;align-items:center;min-height:44px}
+.photo-thumb{width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--gray-border);cursor:pointer;flex-shrink:0}
+.btn-cam{display:flex;align-items:center;gap:3px;padding:5px 7px;background:var(--blue-light);border:1px solid var(--blue-border);border-radius:5px;color:var(--blue);font-size:11px;font-weight:500;cursor:pointer;white-space:nowrap;flex-shrink:0}
+.btn-cam.sketch{background:#F1EFE8;border-color:#D3D1C7;color:#444}
+
+.btn-add-row{width:100%;margin-top:10px;padding:11px;background:none;border:1.5px dashed var(--blue-mid);border-radius:var(--radius-sm);color:var(--blue);font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.btn-add-row:active{background:var(--blue-light)}
+.btn-del-row{background:none;border:none;cursor:pointer;padding:6px;color:#ccc;display:flex;align-items:center;justify-content:center}
+.btn-del-row:active{color:var(--red)}
+
+/* PDF PREVIEW MODAL */
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:500;display:flex;flex-direction:column}
+.modal-header{background:white;padding:12px 14px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;border-bottom:1px solid var(--gray-border)}
+.modal-header h3{font-size:14px;font-weight:600}
+.modal-body{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px}
+.modal-footer{background:white;padding:10px 14px;display:flex;gap:8px;flex-shrink:0;border-top:1px solid var(--gray-border)}
+.btn-cancel{flex:1;padding:12px;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer}
+.btn-confirm{flex:2;padding:12px;background:var(--blue);border:none;border-radius:var(--radius-sm);color:white;font-size:14px;font-weight:600;cursor:pointer}
+
+/* Preview edit sections */
+.preview-section{background:white;border-radius:var(--radius);border:1px solid var(--gray-border);padding:14px}
+.preview-section h4{font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+.preview-field{margin-bottom:8px}
+.preview-field label{display:block;font-size:11px;color:var(--gray-text);font-weight:500;margin-bottom:3px}
+.preview-field input,.preview-field textarea,.preview-field select{width:100%;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:inherit;outline:none;-webkit-appearance:none}
+.preview-field textarea{resize:vertical;min-height:60px}
+.preview-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.toggle-row label{font-size:13px;color:var(--text)}
+.toggle{position:relative;width:44px;height:26px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.slider-tog{position:absolute;inset:0;background:#ccc;border-radius:13px;cursor:pointer;transition:.3s}
+.slider-tog:before{content:'';position:absolute;width:20px;height:20px;left:3px;top:3px;background:white;border-radius:50%;transition:.3s}
+.toggle input:checked+.slider-tog{background:var(--blue)}
+.toggle input:checked+.slider-tog:before{transform:translateX(18px)}
+.color-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.color-row label{font-size:13px;color:var(--text);flex:1}
+.color-row input[type=color]{width:36px;height:32px;padding:1px 2px;border:1px solid var(--gray-border);border-radius:5px;cursor:pointer;background:white}
+
+/* DRAW MODAL */
+.draw-modal{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:999;display:flex;flex-direction:column}
+.draw-tools{background:white;padding:8px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;flex-shrink:0;border-bottom:1px solid var(--gray-border)}
+.draw-tools input[type=color]{width:32px;height:32px;padding:1px 2px;border:1px solid var(--gray-border);border-radius:5px;cursor:pointer;background:white}
+.draw-tools input[type=range]{width:80px}
+.draw-tools label{font-size:11px;color:var(--gray-text)}
+.btn-tool{padding:6px 10px;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:5px;font-size:12px;cursor:pointer}
+.draw-canvas-wrap{flex:1;overflow:hidden;display:flex;align-items:stretch}
+canvas#drawCanvas{width:100%;height:100%;display:block;touch-action:none;cursor:crosshair;background:white}
+
+.btn-export{width:100%;padding:15px;background:var(--blue);border:none;border-radius:var(--radius);color:white;font-size:16px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:4px}
+.btn-export:active{background:var(--blue-dark);transform:scale(.98)}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.show{opacity:1}
+
+.footer-note{text-align:center;font-size:11px;color:#aaa;margin-top:10px;padding-bottom:6px}
+
+svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px}
+</style>
+</head>
+<body>
+
+<header class="app-header">
+  <div class="logo" style="background:white;padding:4px">
+    <img src="data:image/png;base64,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" alt="Confort Glass" style="width:28px;height:auto">
+  </div>
+  <div>
+    <h1>Confort Glass</h1>
+    <p>Fiche visite technique</p>
+  </div>
+</header>
+
+<div class="content">
+
+  <!-- INFOS CHANTIER -->
+  <div class="section">
+    <div class="section-title">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg>
+      Informations chantier
+    </div>
+    <div class="field"><label>Nom du chantier <span class="req">*</span></label><input id="f-chantier" type="text" placeholder="Ex : Résidence Les Pins, Hôtel Ibis Lyon..."></div>
+    <div class="row2">
+      <div class="field"><label>Date de visite <span class="req">*</span></label><input id="f-date" type="date"></div>
+      <div class="field"><label>Suivi par <span class="req">*</span></label><input id="f-suivi" type="text" placeholder="Prénom Nom"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Client / Donneur d'ordre</label><input id="f-client" type="text" placeholder="Nom ou raison sociale"></div>
+      <div class="field"><label>Contact sur place</label><input id="f-contact" type="text" placeholder="Nom du contact"></div>
+    </div>
+    <div class="field"><label>Adresse du chantier</label><input id="f-adresse" type="text" placeholder="N°, rue, code postal, ville"></div>
+    <div class="field"><label>Bâtiment / Bloc</label><input id="f-bat" type="text" placeholder="Bât. A, Tour B..."></div>
+  </div>
+
+  <!-- TABLEAU MÉTRÉS -->
+  <div class="section">
+    <div class="section-title">
+      <svg class="ic" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg>
+      Repérages et métrés
+    </div>
+    <div class="table-wrap">
+      <table class="vt">
+        <thead>
+          <tr>
+            <th class="col-rep">Repère</th>
+            <th class="col-dim">Larg. (mm)</th>
+            <th class="col-dim">Haut. (mm)</th>
+            <th class="col-txt">Type vitrage</th>
+            <th class="col-txt">Type film</th>
+            <th class="col-txt">Accès</th>
+            <th class="col-photo">Photos</th>
+            <th class="col-del"></th>
+          </tr>
+        </thead>
+        <tbody id="film-tbody"></tbody>
+      </table>
+    </div>
+    <button class="btn-add-row" onclick="addRow()">
+      <svg class="ic" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Ajouter une ligne
+    </button>
+  </div>
+
+  <!-- CONTRAINTES -->
+  <div class="section">
+    <div class="section-title">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      Contraintes & observations
+    </div>
+    <div class="field">
+      <label>Observations — contraintes chantier particulières</label>
+      <textarea id="f-obs" placeholder="Accès difficile, mobilier à protéger, horaires imposés, badge/code, présence occupants, état vitrages, nettoyage requis, nacelle à commander, notes poseurs..."></textarea>
+    </div>
+  </div>
+
+  <button class="btn-export" onclick="openPdfPreview()">
+    <svg class="ic" style="stroke:white;width:20px;height:20px" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Exporter PDF + Photos ZIP
+  </button>
+  <p class="footer-note">Confort Glass — Fiche VT — Usage interne chantier</p>
+</div>
+
+<!-- ═══ PDF PREVIEW MODAL ═══ -->
+<div id="pdf-modal" class="modal-backdrop" style="display:none">
+  <div class="modal-header">
+    <h3>⚙️ Mise en page PDF — Aperçu & options</h3>
+    <button class="btn-tool" onclick="closePdfModal()">✕</button>
+  </div>
+  <div class="modal-body" id="pdf-modal-body">
+
+    <div class="preview-section">
+      <h4>En-tête du document</h4>
+      <div class="preview-field"><label>Titre principal</label><input id="pdf-title" value="FICHE VISITE TECHNIQUE"></div>
+      <div class="preview-field"><label>Sous-titre / mention</label><input id="pdf-subtitle" value="Confort Glass — Usage interne chantier"></div>
+      <div class="color-row">
+        <label>Couleur de l'en-tête</label>
+        <input type="color" id="pdf-header-color" value="#185FA5">
+      </div>
+      <div class="toggle-row">
+        <label>Afficher la date d'export</label>
+        <label class="toggle"><input type="checkbox" id="pdf-show-date" checked><span class="slider-tog"></span></label>
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <h4>Informations chantier dans le PDF</h4>
+      <div class="toggle-row"><label>Nom du chantier</label><label class="toggle"><input type="checkbox" id="pdf-inc-chantier" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Date de visite</label><label class="toggle"><input type="checkbox" id="pdf-inc-date" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Suivi par</label><label class="toggle"><input type="checkbox" id="pdf-inc-suivi" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Client / Donneur d'ordre</label><label class="toggle"><input type="checkbox" id="pdf-inc-client" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Contact sur place</label><label class="toggle"><input type="checkbox" id="pdf-inc-contact" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Adresse</label><label class="toggle"><input type="checkbox" id="pdf-inc-adresse" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Bâtiment / Bloc</label><label class="toggle"><input type="checkbox" id="pdf-inc-bat" checked><span class="slider-tog"></span></label></div>
+    </div>
+
+    <div class="preview-section">
+      <h4>Tableau des métrés</h4>
+      <div class="toggle-row"><label>Colonne Repère</label><label class="toggle"><input type="checkbox" id="pdf-col-rep" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Largeur</label><label class="toggle"><input type="checkbox" id="pdf-col-larg" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Hauteur</label><label class="toggle"><input type="checkbox" id="pdf-col-haut" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Type vitrage</label><label class="toggle"><input type="checkbox" id="pdf-col-vit" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Type film</label><label class="toggle"><input type="checkbox" id="pdf-col-film" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Accès</label><label class="toggle"><input type="checkbox" id="pdf-col-acc" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Photos (compteur)</label><label class="toggle"><input type="checkbox" id="pdf-col-photo" checked><span class="slider-tog"></span></label></div>
+      <div class="color-row">
+        <label>Couleur en-tête tableau</label>
+        <input type="color" id="pdf-table-color" value="#E6F1FB">
+      </div>
+    </div>
+
+    <div class="preview-section">
+      <h4>Observations & pied de page</h4>
+      <div class="toggle-row"><label>Inclure les observations</label><label class="toggle"><input type="checkbox" id="pdf-inc-obs" checked><span class="slider-tog"></span></label></div>
+      <div class="preview-field"><label>Texte pied de page</label><input id="pdf-footer-text" value="Confort Glass — Fiche VT — Confidentiel usage interne"></div>
+      <div class="toggle-row"><label>Numérotation des pages</label><label class="toggle"><input type="checkbox" id="pdf-pagination" checked><span class="slider-tog"></span></label></div>
+    </div>
+
+    <div class="preview-section">
+      <h4>Nom du fichier ZIP</h4>
+      <div class="preview-field"><label>Préfixe du dossier (le nom du chantier + date s'ajoutent automatiquement)</label><input id="pdf-zip-prefix" value="VT"></div>
+    </div>
+
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closePdfModal()">Annuler</button>
+    <button class="btn-confirm" onclick="runExport()">✓ Générer et télécharger</button>
+  </div>
+</div>
+
+<!-- ═══ DRAW MODAL ═══ -->
+<div id="draw-modal" class="draw-modal" style="display:none">
+  <div class="modal-header">
+    <h3 id="draw-title">Annotation</h3>
+    <button class="btn-tool" onclick="closeDrawModal()">✕</button>
+  </div>
+  <div class="draw-tools">
+    <label>Couleur</label>
+    <input type="color" id="dc-color" value="#E24B4A" oninput="dc.color=this.value">
+    <label>Taille</label>
+    <input type="range" id="dc-size" min="1" max="24" value="4" oninput="dc.size=parseInt(this.value)">
+    <button class="btn-tool" onclick="dcClear()">🗑 Effacer</button>
+    <button class="btn-tool" onclick="dcUndo()">↩ Annuler</button>
+  </div>
+  <div class="draw-canvas-wrap">
+    <canvas id="drawCanvas"></canvas>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-cancel" onclick="closeDrawModal()">Annuler</button>
+    <button class="btn-confirm" onclick="saveDrawing()">✓ Enregistrer</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none">
+
+<script>
+let rowIdx=0;
+let dc={color:'#E24B4A',size:4};
+let dcCtx=null,dcCanvas=null,dcHistory=[],dcDrawing=false,dcLastX=0,dcLastY=0;
+let dcCurrentRid=null,dcCurrentImg=null;
+
+// ─── ROWS ───
+function addRow(){
+  rowIdx++;
+  const rid=rowIdx;
+  const tr=document.createElement('tr');
+  tr.id='row-'+rid;
+  tr.innerHTML=`
+    <td class="col-rep"><input type="text" placeholder="V${String(rid).padStart(2,'0')}"></td>
+    <td class="col-dim"><input type="number" placeholder="0" style="text-align:center"></td>
+    <td class="col-dim"><input type="number" placeholder="0" style="text-align:center"></td>
+    <td class="col-txt"><input type="text" placeholder="Ex: DV, feuilleté..."></td>
+    <td class="col-txt"><input type="text" placeholder="Ex: Solaire 35, AR..."></td>
+    <td class="col-txt"><input type="text" placeholder="Ex: Nacelle, PP..."></td>
+    <td class="col-photo">
+      <div class="photo-cell" id="photos-${rid}">
+        <button class="btn-cam" onclick="openCamera(${rid})">
+          <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          Photo
+        </button>
+        <button class="btn-cam sketch" onclick="openDraw(${rid},null)">
+          <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          Croquis
+        </button>
+      </div>
+    </td>
+    <td class="col-del">
+      <button class="btn-del-row" onclick="document.getElementById('row-${rid}').remove()" aria-label="Supprimer">
+        <svg style="width:15px;height:15px;stroke:#aaa;fill:none;stroke-width:2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
+      </button>
+    </td>`;
+  document.getElementById('film-tbody').appendChild(tr);
+}
+
+// ─── CAMERA ───
+function openCamera(rid){
+  const inp=document.getElementById('cam-input');
+  inp.value='';
+  inp.onchange=function(){
+    if(!inp.files||!inp.files[0])return;
+    const reader=new FileReader();
+    reader.onload=function(e){addPhotoThumb(rid,e.target.result);};
+    reader.readAsDataURL(inp.files[0]);
+  };
+  inp.click();
+}
+
+function addPhotoThumb(rid,src){
+  const cell=document.getElementById('photos-'+rid);
+  const img=document.createElement('img');
+  img.className='photo-thumb';img.src=src;
+  img.title='Appuyer pour annoter';
+  img.dataset.idx=Date.now()+'_'+Math.random().toString(36).substr(2,5);
+  img.onclick=function(){openDraw(rid,img);};
+  cell.insertBefore(img,cell.firstChild);
+}
+
+// ─── DRAW ───
+function openDraw(rid,existingImg){
+  dcCurrentRid=rid;dcCurrentImg=existingImg;dcHistory=[];
+  document.getElementById('draw-title').textContent=(existingImg?'Annotation — ':'Croquis — ')+'Repère ligne '+rid;
+  const modal=document.getElementById('draw-modal');
+  modal.style.display='flex';
+  dcCanvas=document.getElementById('drawCanvas');
+  const wrap=dcCanvas.parentElement;
+  dcCanvas.width=wrap.offsetWidth||400;
+  dcCanvas.height=wrap.offsetHeight||500;
+  dcCtx=dcCanvas.getContext('2d');
+  dcCtx.fillStyle='white';dcCtx.fillRect(0,0,dcCanvas.width,dcCanvas.height);
+  if(existingImg){
+    const bg=new Image();
+    bg.onload=()=>dcCtx.drawImage(bg,0,0,dcCanvas.width,dcCanvas.height);
+    bg.src=existingImg.src;
+  }
+  setupDcEvents();
+}
+
+function setupDcEvents(){
+  const c=dcCanvas;
+  function getPos(e){
+    const r=c.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return{x:(src.clientX-r.left)*(c.width/r.width),y:(src.clientY-r.top)*(c.height/r.height)};
+  }
+  c.onmousedown=c.ontouchstart=function(e){
+    e.preventDefault();dcDrawing=true;
+    const p=getPos(e);dcLastX=p.x;dcLastY=p.y;
+    dcHistory.push(dcCanvas.toDataURL());
+  };
+  c.onmousemove=c.ontouchmove=function(e){
+    e.preventDefault();if(!dcDrawing)return;
+    const p=getPos(e);
+    dcCtx.beginPath();dcCtx.moveTo(dcLastX,dcLastY);dcCtx.lineTo(p.x,p.y);
+    dcCtx.strokeStyle=dc.color;dcCtx.lineWidth=dc.size;dcCtx.lineCap='round';dcCtx.stroke();
+    dcLastX=p.x;dcLastY=p.y;
+  };
+  c.onmouseup=c.ontouchend=function(){dcDrawing=false;};
+}
+
+function dcClear(){
+  dcCtx.fillStyle='white';dcCtx.fillRect(0,0,dcCanvas.width,dcCanvas.height);
+  if(dcCurrentImg){const bg=new Image();bg.onload=()=>dcCtx.drawImage(bg,0,0,dcCanvas.width,dcCanvas.height);bg.src=dcCurrentImg.src;}
+}
+function dcUndo(){
+  if(!dcHistory.length)return;
+  const prev=dcHistory.pop();
+  const img=new Image();
+  img.onload=()=>{dcCtx.clearRect(0,0,dcCanvas.width,dcCanvas.height);dcCtx.drawImage(img,0,0);};
+  img.src=prev;
+}
+function saveDrawing(){
+  const data=dcCanvas.toDataURL('image/png');
+  if(dcCurrentImg){dcCurrentImg.src=data;}
+  else{addPhotoThumb(dcCurrentRid,data);}
+  closeDrawModal();
+}
+function closeDrawModal(){document.getElementById('draw-modal').style.display='none';}
+
+// ─── PDF PREVIEW MODAL ───
+function openPdfPreview(){document.getElementById('pdf-modal').style.display='flex';}
+function closePdfModal(){document.getElementById('pdf-modal').style.display='none';}
+
+// ─── EXPORT ───
+function sanitize(str){return str.replace(/[^a-zA-Z0-9\-_]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');}
+
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return[r,g,b];
+}
+
+async function runExport(){
+  closePdfModal();
+  showToast('Génération en cours...');
+
+  const chantier=document.getElementById('f-chantier').value.trim()||'Chantier';
+  const date=document.getElementById('f-date').value||new Date().toISOString().slice(0,10);
+  const suivi=document.getElementById('f-suivi').value.trim()||'';
+  const client=document.getElementById('f-client').value.trim()||'';
+  const contact=document.getElementById('f-contact').value.trim()||'';
+  const adresse=document.getElementById('f-adresse').value.trim()||'';
+  const bat=document.getElementById('f-bat').value.trim()||'';
+  const obs=document.getElementById('f-obs').value.trim()||'';
+
+  // PDF options
+  const pdfTitle=document.getElementById('pdf-title').value||'FICHE VISITE TECHNIQUE — FILM VITRAGE';
+  const pdfSubtitle=document.getElementById('pdf-subtitle').value||'Confort Glass';
+  const headerColor=hexToRgb(document.getElementById('pdf-header-color').value);
+  const tableColor=hexToRgb(document.getElementById('pdf-table-color').value);
+  const footerText=document.getElementById('pdf-footer-text').value||'Confort Glass';
+  const zipPrefix=document.getElementById('pdf-zip-prefix').value||'VT_Film';
+  const showDate=document.getElementById('pdf-show-date').checked;
+  const incObs=document.getElementById('pdf-inc-obs').checked;
+  const paginate=document.getElementById('pdf-pagination').checked;
+
+  const incFields={
+    chantier:document.getElementById('pdf-inc-chantier').checked,
+    date:document.getElementById('pdf-inc-date').checked,
+    suivi:document.getElementById('pdf-inc-suivi').checked,
+    client:document.getElementById('pdf-inc-client').checked,
+    contact:document.getElementById('pdf-inc-contact').checked,
+    adresse:document.getElementById('pdf-inc-adresse').checked,
+    bat:document.getElementById('pdf-inc-bat').checked,
+  };
+  const incCols={
+    rep:document.getElementById('pdf-col-rep').checked,
+    larg:document.getElementById('pdf-col-larg').checked,
+    haut:document.getElementById('pdf-col-haut').checked,
+    vit:document.getElementById('pdf-col-vit').checked,
+    film:document.getElementById('pdf-col-film').checked,
+    acc:document.getElementById('pdf-col-acc').checked,
+    photo:document.getElementById('pdf-col-photo').checked,
+  };
+
+  const rows=Array.from(document.getElementById('film-tbody').querySelectorAll('tr'));
+  const rowData=rows.map(row=>{
+    const cells=row.querySelectorAll('td');
+    return{
+      repere:cells[0].querySelector('input').value.trim()||'—',
+      larg:cells[1].querySelector('input').value||'—',
+      haut:cells[2].querySelector('input').value||'—',
+      vitrage:cells[3].querySelector('input').value.trim()||'—',
+      film:cells[4].querySelector('input').value.trim()||'—',
+      acces:cells[5].querySelector('input').value.trim()||'—',
+      photos:Array.from(cells[6].querySelectorAll('img')).map(img=>({src:img.src,idx:img.dataset.idx}))
+    };
+  });
+
+  try{
+    const{jsPDF}=window.jspdf;
+    const doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+    const W=210,ml=14,mr=14,cw=W-ml-mr;
+    let y=14;
+
+    // Header band
+    doc.setFillColor(...headerColor);
+    doc.rect(0,0,W,24,'F');
+    try{doc.addImage('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','PNG',ml,3,18,18);}catch(e){}
+    doc.setTextColor(255,255,255);
+    doc.setFontSize(13);doc.setFont('helvetica','bold');
+    doc.text(pdfTitle,ml+22,11);
+    doc.setFontSize(9);doc.setFont('helvetica','normal');
+    doc.text(pdfSubtitle,ml+22,17);
+    if(showDate){
+      doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+      doc.text('DATE DE VISITE',W-mr,8,{align:'right'});
+      doc.setFontSize(9);doc.setFont('helvetica','normal');
+      doc.text(date||new Date().toLocaleDateString('fr-FR'),W-mr,13,{align:'right'});
+      doc.setFontSize(7.5);doc.setFont('helvetica','bold');
+      doc.text('SUIVI PAR',W-mr,17,{align:'right'});
+      doc.setFontSize(9);doc.setFont('helvetica','normal');
+      doc.text(suivi||'—',W-mr,22,{align:'right'});
+    }
+    y=30;
+
+    // Info block
+    const infoLines=[
+      incFields.chantier&&['Chantier',chantier ? 'Chantier : '+chantier : ''],
+      incFields.date&&['Date visite',date],
+      incFields.suivi&&['Suivi par',suivi],
+      incFields.client&&['Client',client],
+      incFields.contact&&['Contact',contact],
+      incFields.adresse&&['Adresse',adresse],
+      incFields.bat&&['Bâtiment',bat],
+    ].filter(Boolean).filter(l=>l[1]);
+
+    if(infoLines.length){
+      doc.setTextColor(...headerColor);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('INFORMATIONS CHANTIER',ml,y);y+=3.5;
+      doc.setDrawColor(...headerColor);doc.setLineWidth(0.3);doc.line(ml,y,W-mr,y);y+=4;
+      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(9);
+      infoLines.forEach(([k,v])=>{
+        doc.setFont('helvetica','bold');doc.text(k+' :',ml,y);
+        doc.setFont('helvetica','normal');doc.text(v,ml+30,y);
+        y+=5;
+      });
+      y+=4;
+    }
+
+    // Build active columns
+    const allCols=[
+      {key:'rep',label:'Repère',w:18,fn:r=>r.repere},
+      {key:'larg',label:'Larg. mm',w:20,fn:r=>r.larg},
+      {key:'haut',label:'Haut. mm',w:20,fn:r=>r.haut},
+      {key:'vit',label:'Type vitrage',w:35,fn:r=>r.vitrage},
+      {key:'film',label:'Type film',w:40,fn:r=>r.film},
+      {key:'acc',label:'Accès',w:28,fn:r=>r.acces},
+      {key:'photo',label:'Photos',w:21,fn:r=>r.photos.length+' photo(s)'},
+    ].filter(c=>incCols[c.key]);
+
+    const totalW=allCols.reduce((s,c)=>s+c.w,0);
+    const scale=cw/totalW;
+    const cols=allCols.map(c=>({...c,w:c.w*scale}));
+
+    // Table header
+    doc.setTextColor(...headerColor);doc.setFontSize(9);doc.setFont('helvetica','bold');
+    doc.text('REPÉRAGES ET MÉTRÉS',ml,y);y+=3.5;
+    doc.setDrawColor(...headerColor);doc.line(ml,y,W-mr,y);y+=3;
+
+    doc.setFillColor(...tableColor);
+    doc.rect(ml,y,cw,7,'F');
+    doc.setTextColor(headerColor[0]*0.5,headerColor[1]*0.5,headerColor[2]*0.5);
+    doc.setFontSize(8);doc.setFont('helvetica','bold');
+    let cx=ml;
+    cols.forEach(c=>{doc.text(c.label,cx+1.5,y+5);cx+=c.w;});
+    y+=7;
+
+    // Table rows
+    doc.setDrawColor(210,210,210);doc.setLineWidth(0.2);
+    rowData.forEach((rd,i)=>{
+      if(y>265){doc.addPage();y=20;}
+      doc.setFillColor(i%2===0?255:249,i%2===0?255:249,i%2===0?255:248);
+      doc.rect(ml,y,cw,7,'F');
+      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8);
+      cx=ml;
+      cols.forEach(c=>{
+        const val=String(c.fn(rd));
+        const txt=doc.splitTextToSize(val,c.w-2);
+        doc.text(txt[0]||'',cx+1.5,y+5);
+        cx+=c.w;
+      });
+      doc.line(ml,y+7,W-mr,y+7);
+      y+=7;
+    });
+    y+=6;
+
+    // Observations
+    if(incObs&&obs){
+      if(y>248){doc.addPage();y=20;}
+      doc.setTextColor(...headerColor);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('CONTRAINTES & OBSERVATIONS',ml,y);y+=3.5;
+      doc.setDrawColor(...headerColor);doc.line(ml,y,W-mr,y);y+=4;
+      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8);
+      const obsLines=doc.splitTextToSize(obs,cw);
+      doc.text(obsLines,ml,y);
+      y+=obsLines.length*4.5+4;
+    }
+
+    // Footer all pages
+    const total=doc.internal.getNumberOfPages();
+    for(let i=1;i<=total;i++){
+      doc.setPage(i);
+      doc.setFillColor(...headerColor);doc.rect(0,290,W,7,'F');
+      doc.setTextColor(255,255,255);doc.setFontSize(7);doc.setFont('helvetica','normal');
+      doc.text(footerText,ml,294.5);
+      if(paginate)doc.text('Page '+i+'/'+total,W-mr,294.5,{align:'right'});
+    }
+
+    const pdfBlob=doc.output('blob');
+    const safeName=sanitize(chantier);
+    const safeDate=date.replace(/-/g,'');
+    const zipName=sanitize(zipPrefix)+'_'+safeName+'_'+safeDate;
+
+    // ZIP
+    const zip=new JSZip();
+    zip.file('Fiche_VT_'+safeName+'_'+safeDate+'.pdf',pdfBlob);
+    const folder=zip.folder('Photos');
+    rowData.forEach(rd=>{
+      const repSafe=sanitize(rd.repere);
+      rd.photos.forEach((ph,pi)=>{
+        const ext=ph.src.startsWith('data:image/png')?'png':'jpg';
+        folder.file(repSafe+'_photo'+(pi+1)+'.'+ext,ph.src.split(',')[1],{base64:true});
+      });
+    });
+
+    const zipBlob=await zip.generateAsync({type:'blob'});
+    const url=URL.createObjectURL(zipBlob);
+    const a=document.createElement('a');
+    a.href=url;a.download=zipName+'.zip';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ '+zipName+'.zip téléchargé');
+  }catch(e){
+    showToast('Erreur : '+e.message);
+    console.error(e);
+  }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// Init
+addRow();
+const today=new Date().toISOString().slice(0,10);
+document.getElementById('f-date').value=today;
+</script>
+</body>
+</html>
