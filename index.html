@@ -799,13 +799,13 @@ async function runExport(){
     const zipName=sanitize(zipPrefix)+'_'+safeName+'_'+safeDate;
 
     // ─── EXCEL ───
-    const xlHeaders=['Repère','Largeur mm','Hauteur mm','Qté','Surface m²','Type vitrage','Type film','Accès'];
+    const xlHeaders=['Repère','Largeur mm','Hauteur mm','Qté','Surface m²'];
     const xlRows=rowData.map(rd=>{
       const larg=parseFloat(rd.larg)||0;
       const haut=parseFloat(rd.haut)||0;
       const qte=parseFloat(rd.qte)||0;
       const surf=Math.round((larg*0.001)*(haut*0.001)*qte*100)/100;
-      return[rd.repere,larg||rd.larg,haut||rd.haut,qte||rd.qte,surf,rd.vitrage,rd.film,rd.acces];
+      return[rd.repere,larg||rd.larg,haut||rd.haut,qte||rd.qte,surf];
     });
     const totalSurf=Math.round(xlRows.reduce((s,r)=>s+r[4],0)*100)/100;
 
@@ -815,13 +815,13 @@ async function runExport(){
       [],
       xlHeaders,
       ...xlRows,
-      ['','','','','Total surface','','',''],
+      ['','','','Total surface m²',totalSurf],
     ];
     const wb=XLSX.utils.book_new();
     const ws=XLSX.utils.aoa_to_sheet(xlData);
 
     // Largeurs colonnes
-    ws['!cols']=[{wch:14},{wch:12},{wch:12},{wch:6},{wch:12},{wch:18},{wch:18},{wch:14}];
+    ws['!cols']=[{wch:14},{wch:12},{wch:12},{wch:6},{wch:12}];
 
     // Style en-têtes (ligne 4, index 3)
     const hdrRow=3;
@@ -838,6 +838,8 @@ async function runExport(){
     // Label "Total surface" en gras
     const lblRef=XLSX.utils.encode_cell({r:totRow,c:3});
     ws[lblRef]={v:'Total surface m²',t:'s',s:{font:{bold:true}}};
+    // Supprimer les cellules vides de la ligne total (colonnes 0-2)
+    [0,1,2].forEach(ci=>{const r=XLSX.utils.encode_cell({r:totRow,c:ci});if(ws[r])delete ws[r];});
 
     XLSX.utils.book_append_sheet(wb,ws,'Métrés');
     const xlBuf=XLSX.write(wb,{bookType:'xlsx',type:'array'});
