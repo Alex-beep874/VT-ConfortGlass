@@ -40,12 +40,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
 
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:0 -2px}
-table.vt{width:100%;border-collapse:collapse;min-width:620px}
+table.vt{width:100%;border-collapse:collapse;min-width:860px}
 table.vt th{background:var(--blue-light);color:var(--blue-dark);font-size:11px;font-weight:600;padding:8px 7px;border:1px solid var(--blue-border);text-align:left;white-space:nowrap}
 table.vt td{border:1px solid var(--gray-border);padding:3px;vertical-align:middle}
 table.vt td input{width:100%;background:transparent;border:none;padding:6px 5px;font-size:13px;color:var(--text);font-family:inherit;outline:none}
 table.vt td input:focus{background:var(--blue-light);border-radius:3px}
-.col-rep{width:68px}.col-dim{width:76px}.col-txt{width:120px}.col-photo{width:155px}.col-del{width:34px}
+.col-rep{width:68px}.col-dim{width:76px}.col-qty{width:55px}.col-txt{width:110px}.col-photo{width:150px}.col-comm{width:115px}.col-del{width:34px}
 
 .photo-cell{display:flex;flex-wrap:wrap;gap:4px;padding:4px;align-items:center;min-height:44px}
 .photo-thumb{width:36px;height:36px;object-fit:cover;border-radius:4px;border:1px solid var(--gray-border);cursor:pointer;flex-shrink:0}
@@ -66,7 +66,6 @@ table.vt td input:focus{background:var(--blue-light);border-radius:3px}
 .btn-cancel{flex:1;padding:12px;background:var(--gray-bg);border:1px solid var(--gray-border);border-radius:var(--radius-sm);font-size:14px;font-weight:500;cursor:pointer}
 .btn-confirm{flex:2;padding:12px;background:var(--blue);border:none;border-radius:var(--radius-sm);color:white;font-size:14px;font-weight:600;cursor:pointer}
 
-/* Preview edit sections */
 .preview-section{background:white;border-radius:var(--radius);border:1px solid var(--gray-border);padding:14px}
 .preview-section h4{font-size:12px;font-weight:600;color:var(--blue);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
 .preview-field{margin-bottom:8px}
@@ -102,9 +101,25 @@ canvas#drawCanvas{width:100%;height:100%;display:block;touch-action:none;cursor:
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1a1a1a;color:white;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;z-index:9999;white-space:nowrap;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.show{opacity:1}
 
-.footer-note{text-align:center;font-size:11px;color:#aaa;margin-top:10px;padding-bottom:6px}
+.footer-note{text-align:center;font-size:11px;color:#aaa;margin-top:10px;padding-bottom:2px}
+.save-indicator{text-align:center;font-size:11px;color:#bbb;padding-bottom:6px}
 
 svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;vertical-align:-2px}
+
+/* RESUME MODAL */
+.resume-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.65);z-index:800;display:flex;align-items:center;justify-content:center}
+.resume-box{background:white;border-radius:var(--radius);padding:24px;width:90%;max-width:380px;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.resume-box h3{font-size:17px;font-weight:700;color:var(--blue);margin-bottom:6px}
+.resume-box p{color:var(--gray-text);font-size:13px;margin-bottom:20px;line-height:1.6;white-space:pre-line}
+.resume-box .btn-confirm{display:block;width:100%;margin-bottom:10px;text-align:center}
+.resume-box .btn-cancel{display:block;width:100%;text-align:center}
+
+/* GENERAL PHOTOS */
+.gen-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;min-height:0}
+.gen-photo-wrap{position:relative;width:72px;height:72px;flex-shrink:0}
+.gen-photo-wrap img{width:72px;height:72px;object-fit:cover;border-radius:6px;border:1px solid var(--gray-border);cursor:pointer;display:block}
+.gen-photo-del{position:absolute;top:-7px;right:-7px;width:22px;height:22px;background:var(--red);border:none;border-radius:50%;color:white;font-size:16px;line-height:22px;text-align:center;cursor:pointer;padding:0}
+.gen-actions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -140,6 +155,29 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
     <div class="field"><label>Bâtiment / Bloc</label><input id="f-bat" type="text" placeholder="Bât. A, Tour B..."></div>
   </div>
 
+  <!-- PHOTOS / CROQUIS GÉNÉRAUX -->
+  <div class="section">
+    <div class="section-title">
+      <svg class="ic" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+      Photos / Croquis généraux
+    </div>
+    <div class="gen-actions">
+      <button class="btn-cam" onclick="openGeneralCamera()">
+        <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+        Ajouter une photo générale
+      </button>
+      <button class="btn-cam sketch" onclick="openGeneralDraw()">
+        <svg style="width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Croquis général
+      </button>
+    </div>
+    <div id="general-photos" class="gen-grid"></div>
+    <div class="field" style="margin-top:10px">
+      <label>Observations générales</label>
+      <textarea id="f-obs-general" placeholder="Observations générales sur le chantier, contexte, accès, remarques..."></textarea>
+    </div>
+  </div>
+
   <!-- TABLEAU MÉTRÉS -->
   <div class="section">
     <div class="section-title">
@@ -153,10 +191,12 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
             <th class="col-rep">Repère</th>
             <th class="col-dim">Larg. (mm)</th>
             <th class="col-dim">Haut. (mm)</th>
+            <th class="col-qty">Qté</th>
             <th class="col-txt">Type vitrage</th>
             <th class="col-txt">Type film</th>
             <th class="col-txt">Accès</th>
             <th class="col-photo">Photos</th>
+            <th class="col-comm">Commentaires</th>
             <th class="col-del"></th>
           </tr>
         </thead>
@@ -186,6 +226,17 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
     Exporter PDF + Photos ZIP
   </button>
   <p class="footer-note">Confort Glass — Fiche VT — Usage interne chantier</p>
+  <p id="save-indicator" class="save-indicator"></p>
+</div>
+
+<!-- ═══ RESUME MODAL ═══ -->
+<div id="resume-modal" class="resume-backdrop" style="display:none">
+  <div class="resume-box">
+    <h3>Visite en cours</h3>
+    <p id="resume-info"></p>
+    <button class="btn-confirm" onclick="resumeVisit()">Continuer la visite</button>
+    <button class="btn-cancel" onclick="newVisit()">Nouvelle visite</button>
+  </div>
 </div>
 
 <!-- ═══ PDF PREVIEW MODAL ═══ -->
@@ -203,10 +254,6 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
       <div class="color-row">
         <label>Couleur de l'en-tête</label>
         <input type="color" id="pdf-header-color" value="#185FA5">
-      </div>
-      <div class="toggle-row">
-        <label>Afficher la date d'export</label>
-        <label class="toggle"><input type="checkbox" id="pdf-show-date" checked><span class="slider-tog"></span></label>
       </div>
     </div>
 
@@ -226,10 +273,12 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
       <div class="toggle-row"><label>Colonne Repère</label><label class="toggle"><input type="checkbox" id="pdf-col-rep" checked><span class="slider-tog"></span></label></div>
       <div class="toggle-row"><label>Colonne Largeur</label><label class="toggle"><input type="checkbox" id="pdf-col-larg" checked><span class="slider-tog"></span></label></div>
       <div class="toggle-row"><label>Colonne Hauteur</label><label class="toggle"><input type="checkbox" id="pdf-col-haut" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Qté</label><label class="toggle"><input type="checkbox" id="pdf-col-qte" checked><span class="slider-tog"></span></label></div>
       <div class="toggle-row"><label>Colonne Type vitrage</label><label class="toggle"><input type="checkbox" id="pdf-col-vit" checked><span class="slider-tog"></span></label></div>
       <div class="toggle-row"><label>Colonne Type film</label><label class="toggle"><input type="checkbox" id="pdf-col-film" checked><span class="slider-tog"></span></label></div>
       <div class="toggle-row"><label>Colonne Accès</label><label class="toggle"><input type="checkbox" id="pdf-col-acc" checked><span class="slider-tog"></span></label></div>
       <div class="toggle-row"><label>Colonne Photos (compteur)</label><label class="toggle"><input type="checkbox" id="pdf-col-photo" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Colonne Commentaires</label><label class="toggle"><input type="checkbox" id="pdf-col-comm" checked><span class="slider-tog"></span></label></div>
       <div class="color-row">
         <label>Couleur en-tête tableau</label>
         <input type="color" id="pdf-table-color" value="#E6F1FB">
@@ -238,7 +287,8 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
 
     <div class="preview-section">
       <h4>Observations & pied de page</h4>
-      <div class="toggle-row"><label>Inclure les observations</label><label class="toggle"><input type="checkbox" id="pdf-inc-obs" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Inclure les observations chantier</label><label class="toggle"><input type="checkbox" id="pdf-inc-obs" checked><span class="slider-tog"></span></label></div>
+      <div class="toggle-row"><label>Inclure les observations générales</label><label class="toggle"><input type="checkbox" id="pdf-inc-obs-general" checked><span class="slider-tog"></span></label></div>
       <div class="preview-field"><label>Texte pied de page</label><input id="pdf-footer-text" value="Confort Glass — Fiche VT — Confidentiel usage interne"></div>
       <div class="toggle-row"><label>Numérotation des pages</label><label class="toggle"><input type="checkbox" id="pdf-pagination" checked><span class="slider-tog"></span></label></div>
     </div>
@@ -280,12 +330,104 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
 
 <div id="toast" class="toast"></div>
 <input type="file" id="cam-input" accept="image/*" capture="environment" style="display:none">
+<input type="file" id="cam-input-general" accept="image/*" capture="environment" style="display:none">
 
 <script>
 let rowIdx=0;
 let dc={color:'#E24B4A',size:4};
 let dcCtx=null,dcCanvas=null,dcHistory=[],dcDrawing=false,dcLastX=0,dcLastY=0;
 let dcCurrentRid=null,dcCurrentImg=null;
+let genPhotoIdx=0;
+
+// ─── AUTO-SAVE ───
+let saveTimer=null;
+function scheduleSave(){
+  clearTimeout(saveTimer);
+  saveTimer=setTimeout(saveToStorage,800);
+}
+
+function saveToStorage(){
+  const rows=Array.from(document.getElementById('film-tbody').querySelectorAll('tr'));
+  const rowsData=rows.map(row=>{
+    const c=row.querySelectorAll('td');
+    return{
+      repere:c[0].querySelector('input').value,
+      larg:c[1].querySelector('input').value,
+      haut:c[2].querySelector('input').value,
+      qte:c[3].querySelector('input').value,
+      vitrage:c[4].querySelector('input').value,
+      film:c[5].querySelector('input').value,
+      acces:c[6].querySelector('input').value,
+      commentaire:c[8].querySelector('input').value
+    };
+  });
+  const data={
+    chantier:document.getElementById('f-chantier').value,
+    date:document.getElementById('f-date').value,
+    suivi:document.getElementById('f-suivi').value,
+    client:document.getElementById('f-client').value,
+    contact:document.getElementById('f-contact').value,
+    adresse:document.getElementById('f-adresse').value,
+    bat:document.getElementById('f-bat').value,
+    obs:document.getElementById('f-obs').value,
+    obsGeneral:document.getElementById('f-obs-general').value,
+    rows:rowsData,
+    savedAt:new Date().toISOString()
+  };
+  try{
+    localStorage.setItem('vt_sauvegarde',JSON.stringify(data));
+    updateSaveIndicator(data.savedAt);
+  }catch(e){console.warn('localStorage plein',e);}
+}
+
+function updateSaveIndicator(iso){
+  const el=document.getElementById('save-indicator');
+  if(!el)return;
+  const d=new Date(iso);
+  el.textContent='Sauvegardé à '+d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+}
+
+function restoreFromStorage(data){
+  document.getElementById('f-chantier').value=data.chantier||'';
+  document.getElementById('f-date').value=data.date||new Date().toISOString().slice(0,10);
+  document.getElementById('f-suivi').value=data.suivi||'';
+  document.getElementById('f-client').value=data.client||'';
+  document.getElementById('f-contact').value=data.contact||'';
+  document.getElementById('f-adresse').value=data.adresse||'';
+  document.getElementById('f-bat').value=data.bat||'';
+  document.getElementById('f-obs').value=data.obs||'';
+  document.getElementById('f-obs-general').value=data.obsGeneral||'';
+  const tbody=document.getElementById('film-tbody');
+  tbody.innerHTML='';rowIdx=0;
+  if(data.rows&&data.rows.length){
+    data.rows.forEach(rd=>{
+      addRow();
+      const tr=tbody.lastElementChild;
+      const c=tr.querySelectorAll('td');
+      c[0].querySelector('input').value=rd.repere||'';
+      c[1].querySelector('input').value=rd.larg||'';
+      c[2].querySelector('input').value=rd.haut||'';
+      c[3].querySelector('input').value=rd.qte||'';
+      c[4].querySelector('input').value=rd.vitrage||'';
+      c[5].querySelector('input').value=rd.film||'';
+      c[6].querySelector('input').value=rd.acces||'';
+      c[8].querySelector('input').value=rd.commentaire||'';
+    });
+  }else{addRow();}
+  if(data.savedAt)updateSaveIndicator(data.savedAt);
+}
+
+function resumeVisit(){
+  document.getElementById('resume-modal').style.display='none';
+  if(window._savedData)restoreFromStorage(window._savedData);
+}
+
+function newVisit(){
+  localStorage.removeItem('vt_sauvegarde');
+  document.getElementById('resume-modal').style.display='none';
+  document.getElementById('f-date').value=new Date().toISOString().slice(0,10);
+  addRow();
+}
 
 // ─── ROWS ───
 function addRow(){
@@ -297,6 +439,7 @@ function addRow(){
     <td class="col-rep"><input type="text" placeholder="V${String(rid).padStart(2,'0')}"></td>
     <td class="col-dim"><input type="number" placeholder="0" style="text-align:center"></td>
     <td class="col-dim"><input type="number" placeholder="0" style="text-align:center"></td>
+    <td class="col-qty"><input type="number" placeholder="1" min="1" style="text-align:center"></td>
     <td class="col-txt"><input type="text" placeholder="Ex: DV, feuilleté..."></td>
     <td class="col-txt"><input type="text" placeholder="Ex: Solaire 35, AR..."></td>
     <td class="col-txt"><input type="text" placeholder="Ex: Nacelle, PP..."></td>
@@ -312,15 +455,16 @@ function addRow(){
         </button>
       </div>
     </td>
+    <td class="col-comm"><input type="text" placeholder="Commentaire..."></td>
     <td class="col-del">
-      <button class="btn-del-row" onclick="document.getElementById('row-${rid}').remove()" aria-label="Supprimer">
+      <button class="btn-del-row" onclick="document.getElementById('row-${rid}').remove();scheduleSave();" aria-label="Supprimer">
         <svg style="width:15px;height:15px;stroke:#aaa;fill:none;stroke-width:2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M9 6V4h6v2"/></svg>
       </button>
     </td>`;
   document.getElementById('film-tbody').appendChild(tr);
 }
 
-// ─── CAMERA ───
+// ─── CAMERA (lignes) ───
 function openCamera(rid){
   const inp=document.getElementById('cam-input');
   inp.value='';
@@ -343,10 +487,51 @@ function addPhotoThumb(rid,src){
   cell.insertBefore(img,cell.firstChild);
 }
 
+// ─── CAMERA (général) ───
+function openGeneralCamera(){
+  const inp=document.getElementById('cam-input-general');
+  inp.value='';
+  inp.onchange=function(){
+    if(!inp.files||!inp.files[0])return;
+    const reader=new FileReader();
+    reader.onload=function(e){addGeneralPhoto(e.target.result);};
+    reader.readAsDataURL(inp.files[0]);
+  };
+  inp.click();
+}
+
+function addGeneralPhoto(src){
+  genPhotoIdx++;
+  const idx=genPhotoIdx;
+  const grid=document.getElementById('general-photos');
+  const wrap=document.createElement('div');
+  wrap.className='gen-photo-wrap';
+  wrap.id='gp-'+idx;
+  const img=document.createElement('img');
+  img.src=src;
+  img.title='Appuyer pour annoter';
+  img.onclick=function(){openDraw('gen-'+idx,img);};
+  const del=document.createElement('button');
+  del.className='gen-photo-del';
+  del.textContent='×';
+  del.onclick=function(){wrap.remove();};
+  wrap.appendChild(img);
+  wrap.appendChild(del);
+  grid.appendChild(wrap);
+}
+
+function openGeneralDraw(){
+  openDraw('gen-new',null);
+}
+
 // ─── DRAW ───
 function openDraw(rid,existingImg){
   dcCurrentRid=rid;dcCurrentImg=existingImg;dcHistory=[];
-  document.getElementById('draw-title').textContent=(existingImg?'Annotation — ':'Croquis — ')+'Repère ligne '+rid;
+  const isGen=typeof rid==='string'&&rid.startsWith('gen');
+  let title='';
+  if(isGen){title=existingImg?'Annotation — Photo générale':'Croquis général';}
+  else{title=existingImg?'Annotation — Repère ligne '+rid:'Croquis — Repère ligne '+rid;}
+  document.getElementById('draw-title').textContent=title;
   const modal=document.getElementById('draw-modal');
   modal.style.display='flex';
   dcCanvas=document.getElementById('drawCanvas');
@@ -398,7 +583,9 @@ function dcUndo(){
 }
 function saveDrawing(){
   const data=dcCanvas.toDataURL('image/png');
+  const isGen=typeof dcCurrentRid==='string'&&dcCurrentRid.startsWith('gen');
   if(dcCurrentImg){dcCurrentImg.src=data;}
+  else if(isGen){addGeneralPhoto(data);}
   else{addPhotoThumb(dcCurrentRid,data);}
   closeDrawModal();
 }
@@ -410,7 +597,6 @@ function closePdfModal(){document.getElementById('pdf-modal').style.display='non
 
 // ─── EXPORT ───
 function sanitize(str){return str.replace(/[^a-zA-Z0-9\-_]/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'');}
-
 function hexToRgb(hex){
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   return[r,g,b];
@@ -422,23 +608,23 @@ async function runExport(){
 
   const chantier=document.getElementById('f-chantier').value.trim()||'Chantier';
   const date=document.getElementById('f-date').value||new Date().toISOString().slice(0,10);
-  const dateFormatted=date ? date.split('-').reverse().join('/') : new Date().toLocaleDateString('fr-FR');
+  const dateFormatted=date?date.split('-').reverse().join('/'):'';
   const suivi=document.getElementById('f-suivi').value.trim()||'';
   const client=document.getElementById('f-client').value.trim()||'';
   const contact=document.getElementById('f-contact').value.trim()||'';
   const adresse=document.getElementById('f-adresse').value.trim()||'';
   const bat=document.getElementById('f-bat').value.trim()||'';
   const obs=document.getElementById('f-obs').value.trim()||'';
+  const obsGeneral=document.getElementById('f-obs-general').value.trim()||'';
 
-  // PDF options
-  const pdfTitle=document.getElementById('pdf-title').value||'FICHE VISITE TECHNIQUE — FILM VITRAGE';
+  const pdfTitle=document.getElementById('pdf-title').value||'FICHE VISITE TECHNIQUE';
   const pdfSubtitle=document.getElementById('pdf-subtitle').value||'Confort Glass';
   const headerColor=hexToRgb(document.getElementById('pdf-header-color').value);
   const tableColor=hexToRgb(document.getElementById('pdf-table-color').value);
   const footerText=document.getElementById('pdf-footer-text').value||'Confort Glass';
-  const zipPrefix=document.getElementById('pdf-zip-prefix').value||'VT_Film';
-  const showDate=document.getElementById('pdf-show-date').checked;
+  const zipPrefix=document.getElementById('pdf-zip-prefix').value||'VT';
   const incObs=document.getElementById('pdf-inc-obs').checked;
+  const incObsGen=document.getElementById('pdf-inc-obs-general').checked;
   const paginate=document.getElementById('pdf-pagination').checked;
 
   const incFields={
@@ -454,23 +640,28 @@ async function runExport(){
     rep:document.getElementById('pdf-col-rep').checked,
     larg:document.getElementById('pdf-col-larg').checked,
     haut:document.getElementById('pdf-col-haut').checked,
+    qte:document.getElementById('pdf-col-qte').checked,
     vit:document.getElementById('pdf-col-vit').checked,
     film:document.getElementById('pdf-col-film').checked,
     acc:document.getElementById('pdf-col-acc').checked,
     photo:document.getElementById('pdf-col-photo').checked,
+    comm:document.getElementById('pdf-col-comm').checked,
   };
 
+  // cells: [0]repere [1]larg [2]haut [3]qte [4]vitrage [5]film [6]acces [7]photos [8]commentaire [9]del
   const rows=Array.from(document.getElementById('film-tbody').querySelectorAll('tr'));
   const rowData=rows.map(row=>{
-    const cells=row.querySelectorAll('td');
+    const c=row.querySelectorAll('td');
     return{
-      repere:cells[0].querySelector('input').value.trim()||'—',
-      larg:cells[1].querySelector('input').value||'—',
-      haut:cells[2].querySelector('input').value||'—',
-      vitrage:cells[3].querySelector('input').value.trim()||'—',
-      film:cells[4].querySelector('input').value.trim()||'—',
-      acces:cells[5].querySelector('input').value.trim()||'—',
-      photos:Array.from(cells[6].querySelectorAll('img')).map(img=>({src:img.src,idx:img.dataset.idx}))
+      repere:c[0].querySelector('input').value.trim()||'—',
+      larg:c[1].querySelector('input').value||'—',
+      haut:c[2].querySelector('input').value||'—',
+      qte:c[3].querySelector('input').value||'—',
+      vitrage:c[4].querySelector('input').value.trim()||'—',
+      film:c[5].querySelector('input').value.trim()||'—',
+      acces:c[6].querySelector('input').value.trim()||'—',
+      photos:Array.from(c[7].querySelectorAll('img')).map(img=>({src:img.src,idx:img.dataset.idx})),
+      comm:c[8].querySelector('input').value.trim()||'—',
     };
   });
 
@@ -520,13 +711,15 @@ async function runExport(){
 
     // Build active columns
     const allCols=[
-      {key:'rep',label:'Repère',w:18,fn:r=>r.repere},
-      {key:'larg',label:'Larg. mm',w:20,fn:r=>r.larg},
-      {key:'haut',label:'Haut. mm',w:20,fn:r=>r.haut},
-      {key:'vit',label:'Type vitrage',w:35,fn:r=>r.vitrage},
-      {key:'film',label:'Type film',w:40,fn:r=>r.film},
-      {key:'acc',label:'Accès',w:28,fn:r=>r.acces},
-      {key:'photo',label:'Photos',w:21,fn:r=>r.photos.length+' photo(s)'},
+      {key:'rep',label:'Repère',w:16,fn:r=>r.repere},
+      {key:'larg',label:'Larg. mm',w:17,fn:r=>r.larg},
+      {key:'haut',label:'Haut. mm',w:17,fn:r=>r.haut},
+      {key:'qte',label:'Qté',w:11,fn:r=>r.qte},
+      {key:'vit',label:'Type vitrage',w:28,fn:r=>r.vitrage},
+      {key:'film',label:'Type film',w:32,fn:r=>r.film},
+      {key:'acc',label:'Accès',w:22,fn:r=>r.acces},
+      {key:'photo',label:'Photos',w:15,fn:r=>r.photos.length+' photo(s)'},
+      {key:'comm',label:'Commentaires',w:24,fn:r=>r.comm},
     ].filter(c=>incCols[c.key]);
 
     const totalW=allCols.reduce((s,c)=>s+c.w,0);
@@ -565,7 +758,7 @@ async function runExport(){
     });
     y+=6;
 
-    // Observations
+    // Observations chantier
     if(incObs&&obs){
       if(y>248){doc.addPage();y=20;}
       doc.setTextColor(...headerColor);doc.setFontSize(9);doc.setFont('helvetica','bold');
@@ -575,6 +768,18 @@ async function runExport(){
       const obsLines=doc.splitTextToSize(obs,cw);
       doc.text(obsLines,ml,y);
       y+=obsLines.length*4.5+4;
+    }
+
+    // Observations générales
+    if(incObsGen&&obsGeneral){
+      if(y>248){doc.addPage();y=20;}
+      doc.setTextColor(...headerColor);doc.setFontSize(9);doc.setFont('helvetica','bold');
+      doc.text('OBSERVATIONS GÉNÉRALES',ml,y);y+=3.5;
+      doc.setDrawColor(...headerColor);doc.line(ml,y,W-mr,y);y+=4;
+      doc.setTextColor(30,30,30);doc.setFont('helvetica','normal');doc.setFontSize(8);
+      const ogLines=doc.splitTextToSize(obsGeneral,cw);
+      doc.text(ogLines,ml,y);
+      y+=ogLines.length*4.5+4;
     }
 
     // Footer all pages
@@ -595,6 +800,8 @@ async function runExport(){
     // ZIP
     const zip=new JSZip();
     zip.file('Fiche_VT_'+safeName+'_'+safeDate+'.pdf',pdfBlob);
+
+    // Photos par ligne
     const folder=zip.folder('Photos');
     rowData.forEach(rd=>{
       const repSafe=sanitize(rd.repere);
@@ -603,6 +810,16 @@ async function runExport(){
         folder.file(repSafe+'_photo'+(pi+1)+'.'+ext,ph.src.split(',')[1],{base64:true});
       });
     });
+
+    // Photos générales
+    const genImgs=document.getElementById('general-photos').querySelectorAll('img');
+    if(genImgs.length){
+      const genFolder=zip.folder('Photos_generales');
+      Array.from(genImgs).forEach((img,pi)=>{
+        const ext=img.src.startsWith('data:image/png')?'png':'jpg';
+        genFolder.file('general_'+(pi+1)+'.'+ext,img.src.split(',')[1],{base64:true});
+      });
+    }
 
     const zipBlob=await zip.generateAsync({type:'blob'});
     const url=URL.createObjectURL(zipBlob);
@@ -622,10 +839,30 @@ function showToast(msg){
   setTimeout(()=>t.classList.remove('show'),3500);
 }
 
-// Init
-addRow();
+// ─── INIT ───
 const today=new Date().toISOString().slice(0,10);
-document.getElementById('f-date').value=today;
+const _saved=localStorage.getItem('vt_sauvegarde');
+if(_saved){
+  try{
+    const data=JSON.parse(_saved);
+    const nom=data.chantier||'Sans nom';
+    const ts=data.savedAt?new Date(data.savedAt).toLocaleString('fr-FR',{dateStyle:'short',timeStyle:'short'}):'';
+    document.getElementById('resume-info').textContent='Chantier : '+nom+(ts?'\nSauvegardé le '+ts:'');
+    document.getElementById('resume-modal').style.display='flex';
+    window._savedData=data;
+  }catch(e){
+    localStorage.removeItem('vt_sauvegarde');
+    addRow();
+    document.getElementById('f-date').value=today;
+  }
+}else{
+  addRow();
+  document.getElementById('f-date').value=today;
+}
+
+// Attacher les listeners d'auto-save (délégation sur .content)
+document.querySelector('.content').addEventListener('input',scheduleSave);
+document.querySelector('.content').addEventListener('change',scheduleSave);
 </script>
 </body>
 </html>
