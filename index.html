@@ -853,6 +853,7 @@ function buildEntries(){
       const getV=(i)=>{const inp=c[i].querySelector('input');return inp?inp.value.trim():'';};
       entries.push({
         type:'data',
+        rid:tr.id.replace('row-',''),
         repere:getV(0)||'-',
         larg:getV(1)||'-',
         haut:getV(2)||'-',
@@ -1130,7 +1131,7 @@ async function runExport(){
       const repSafe=sanitize(rd.repere);
       rd.photos.forEach((ph,pi)=>{
         const ext=ph.src.startsWith('data:image/png')?'png':'jpg';
-        folder.file(repSafe+'_photo'+(pi+1)+'.'+ext,ph.src.split(',')[1],{base64:true});
+        folder.file(repSafe+'_L'+rd.rid+'_photo'+(pi+1)+'.'+ext,ph.src.split(',')[1],{base64:true});
       });
     });
 
