@@ -350,7 +350,7 @@ svg.ic{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;verti
 
     <div class="preview-section">
       <h4>Nom du fichier ZIP</h4>
-      <div class="preview-field"><label>Préfixe du dossier (le nom du chantier + date s'ajoutent automatiquement)</label><input id="pdf-zip-prefix" value="VT"></div>
+      <div class="preview-field"><label>Préfixe du dossier (le nom du chantier + date s'ajoutent automatiquement)</label><input id="pdf-zip-prefix" value="DDP"></div>
     </div>
 
   </div>
@@ -889,7 +889,7 @@ async function runExport(){
   const headerColor=hexToRgb(document.getElementById('pdf-header-color').value);
   const tableColor=hexToRgb(document.getElementById('pdf-table-color').value);
   const footerText=document.getElementById('pdf-footer-text').value||'Confort Glass';
-  const zipPrefix=document.getElementById('pdf-zip-prefix').value||'VT';
+  const zipPrefix=document.getElementById('pdf-zip-prefix').value||'DDP';
   const incObs=document.getElementById('pdf-inc-obs').checked;
   const incObsGen=document.getElementById('pdf-inc-obs-general').checked;
   const paginate=document.getElementById('pdf-pagination').checked;
